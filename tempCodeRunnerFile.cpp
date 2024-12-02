@@ -33,7 +33,7 @@ Inventory* buildTree(Inventory* root, int rewardId, char rewardName, int rewardS
 
     // base case
     if(root == NULL){       // if there will no node then node will created
-        root = new Inventory(rewardId, rewardName, rewardScore);
+        root = new Inventory(100, rewardName, rewardScore);
         return root;
     }
 
@@ -52,44 +52,62 @@ Inventory* buildTree(Inventory* root, int rewardId, char rewardName, int rewardS
 }
 
 
-// Level order traversal of tree
-void levelOrderTraversal(Inventory* root){
-
-    queue<Inventory*> q;
-    q.push(root);       // pushed root element
-    q.push(NULL);       // after root we have null
+void printRecord(Inventory* root){
 
 
-    while(!q.empty()){      // printing the element until queue got empty
+    if(root == NULL)
+        return;
 
-        Inventory* temp = q.front();
-        q.pop();
+    printRecord(root->left);
 
-        if(temp == NULL){
-            cout<<endl;         // if NULL found in queue then enter 
-            if(!q.empty()){
-                q.push(NULL);
-            }
-        }
-        else{
+    cout<<root -> rewardId<<endl;
 
-            cout<<temp -> rewardId<<" ";
-            cout<<temp -> rewardName<<" ";
-            cout<<temp -> rewardScore<<" ";
-
-            if(temp -> left){       // if temp left is non-null then it push 
-                q.push(temp->left);
-            }
-
-            if(temp -> right){      // if temp right is non-null then it push 
-                q.push(temp->right);
-            }
-
-        }
-
-    }
+    printRecord(root->right);
 
 }
+
+
+
+// Level order traversal of tree
+// void levelOrderTraversal(Inventory* root){
+
+//     queue<Inventory*> q;
+//     q.push(root);       // pushed root element
+//     q.push(NULL);       // after root we have null
+
+
+//     while(!q.empty()){      // printing the element until queue got empty
+
+//         Inventory* temp = q.front();
+//         q.pop();
+
+//         if(temp == NULL){
+//             cout<<endl;         // if NULL found in queue then enter 
+//             if(!q.empty()){
+//                 q.push(NULL);
+//             }
+//         }
+//         else{
+
+//             cout<<temp -> rewardId<<endl;
+//             cout<<temp -> rewardName<<endl;
+//             cout<<temp -> rewardScore<<endl;
+
+//             if(temp -> left){       // if temp left is non-null then it push 
+//                 q.push(temp->left);
+//             }
+
+//             if(temp -> right){      // if temp right is non-null then it push 
+//                 q.push(temp->right);
+//             }
+
+//         }
+
+//     }
+
+// }
+
+
 
 
 class Game{
@@ -143,12 +161,15 @@ int main(){
     Game g;
     Inventory* root = NULL;
 
-    root = buildTree(root, 100, 'J', 50);
-    root = buildTree(root, rand() % 201, 'P', 60);
-    root = buildTree(root, rand() % 201, 'J', 50);
-    root = buildTree(root, rand() % 201, 'W', 70);
+    // cout<<"Random number : "<<rand() % 201;
 
-    levelOrderTraversal(root);
+    buildTree(root, rand() % 201, 'J', 50);
+    buildTree(root, rand() % 201, 'P', 60);
+    buildTree(root, rand() % 201, 'J', 50);
+    buildTree(root, rand() % 201, 'W', 70);
 
+    printRecord(root);
+
+    // g.printMap();
 
 }
