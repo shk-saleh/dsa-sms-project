@@ -35,12 +35,10 @@ class Inventory{
 
 class InventoryManag{
 
-    private: 
-
-    Inventory* root;
-
-
+    
     public:
+    
+    Inventory* root;
 
     InventoryManag(){
         root = NULL;
@@ -143,16 +141,18 @@ class InventoryManag{
         return temp;
     }
 
-    // delete Node 
-    Inventory* deleteNode(Inventory* root, char rewardType){
+    // delete Node using preorder/NLR -
+    Inventory* deleteNode(Inventory* root, char rewardName, bool &isDeleted){
 
         // base case
-        if(root == NULL){
+        if(root == NULL || isDeleted){
             return root;
         }
 
         // if value found
-        if(root->rewardName == rewardType){
+        if(root->rewardName == rewardName){
+
+            isDeleted = true;
 
             // cases 
             if(root -> left == NULL && root -> right == NULL){
@@ -179,20 +179,17 @@ class InventoryManag{
                 // if there are both left and right child
                 int mini = minValue(root->right) -> rewardId;
                 root -> rewardId = mini;    // store the min value in root
-                root -> right = deleteNode(root->right, mini);      // call the func to delete that copied node
+                root -> right = deleteNode(root->right, mini, isDeleted);      // call the func to delete that copied node
                 return root;
             }
         
         }
-        // else if(root -> data < val){            // if root data will lesser than value
-        //     root -> right = deleteNode(root->right, val);
-        //     return root;
-        // }
-        // else{
-        //     root -> left = deleteNode(root->left, val);
-        //     return root;
-        // }
-
+        
+        root -> left = deleteNode(root->left, rewardName, isDeleted);
+        root -> right = deleteNode(root->right, rewardName, isDeleted);
+            
+        return root;
+        
     }
 
 
@@ -209,6 +206,18 @@ class InventoryManag{
                 }
                 else if(matrix[i][j] == 'P'){
                     root = buildTree(root, rand() % 201, 'P', 70);
+                }
+                else if(matrix[i][j] == '@'){
+                    bool isDeleted = false;
+                    deleteNode(root, 'W', isDeleted);
+                }
+                else if(matrix[i][j] == '$'){
+                    bool isDeleted = false;
+                    deleteNode(root, 'P', isDeleted);
+                }
+                else if(matrix[i][j] == '&'){
+                    bool isDeleted = false;
+                    deleteNode(root, 'J', isDeleted);
                 }
                 else if(matrix[i][j] == '*'){
                     cout<<"You found the crystal! Ya ho..";
@@ -233,10 +242,10 @@ int main(){
     char matrix[MAP_ROW][MAP_COL] = {
                             {'H', 'P', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'J', '#', 'C', 'C', 'C', 'C', 'C', '%', 'C', 'C', 'C'},
                             {'C', 'C', '$', 'C', 'C', 'C', '%', 'C', 'C', 'C', 'J', '#', 'W', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
-                            {'C', '#', 'C', 'C', 'C', 'C', 'W', 'C', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'C', '#', 'C', 'C', 'C'},
+                            {'C', '#', 'J', 'C', 'C', 'C', 'W', 'C', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'C', '#', 'C', 'C', 'C'},
                             {'%', '#', 'P', 'C', 'C', 'C', '#', 'C', 'C', 'J', 'C', 'C', 'C', 'C', 'C', '$', '%', '@', 'C', '&'},
                             {'C', 'C', 'C', 'C', '$', 'C', '#', 'C', 'C', 'C', 'C', '%', 'C', '#', 'C', 'J', 'C', 'C', 'C', 'C'},
-                            {'C', 'C', '%', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '#', '#', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
+                            {'C', 'C', '%', '-', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '#', '#', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
                             {'C', 'C', 'C', '$', '&', 'P', 'J', 'C', 'C', 'C', 'C', 'C', 'C', '#', 'C', '&', '$', '%', 'C', '@'},
                             {'C', 'C', 'C', 'C', '#', 'W', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'C', '&', 'S', 'W', 'C', '%', 'C'},
                             {'C', 'C', '@', 'C', 'C', 'J', 'C', 'W', 'C', 'C', 'W', 'C', '#', 'C', 'C', '#', 'C', '%', 'C', 'C'},
@@ -253,6 +262,7 @@ int main(){
                             {'#', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '#', 'C', 'C', 'C', 'C', 'J', 'C', 'C', 'C', 'C', '%'}
                         };
  
+
     InventoryManag I;
 
     I.traverseMap(matrix);
