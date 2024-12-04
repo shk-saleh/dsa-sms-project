@@ -220,10 +220,10 @@ private:
                 cout << "You found the crystal! Congratulations!" << endl;
                 break;
 
-            case '%': // Player dies
-                cout << "You stepped on a trap and died! Game restarting..." << endl;
-                // restartGame(); // Call the restart function
-                break;
+            // case '%': // Player dies
+            //     cout << "You stepped on a trap and died! Game restarting..." << endl;
+            //     // restartGame(); // Call the restart function
+            //     break;
         }
     }
 
