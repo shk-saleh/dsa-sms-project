@@ -1,139 +1,168 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <climits>
 using namespace std;
 
+const int MAP_SIZE = 20;
 
-// Edge structure for Kruskal's algorithm
+class NodeMST {
+public:
+    int x, y;
+    char type;
+    bool visited;
+    NodeMST* parent;
+    int score;
+
+    NodeMST(int x = 0, int y = 0, char type = '\0') 
+        : x(x), y(y), type(type), visited(false), parent(this), score(0) {}
+};
+
 class Edge {
+public:
+    NodeMST* start;
+    NodeMST* end;
+    int weight;
 
-    public:
-
-    int u, v, weight;
-    
-    Edge(int u, int v, int weight){
-        this -> u = u;
-        this -> v = v;
-        this -> weight = weight;
-    }
-
+    Edge(NodeMST* start, NodeMST* end, int weight) 
+        : start(start), end(end), weight(weight) {}
 };
 
-// Disjoint Set Union (DSU) for Kruskal's algorithm
-class DSU{
-
-    public:
-
-    vector<int> parent, rank;
-
-    DSU(int n) {
-
-        parent.resize(n);       // no of nodes in our map
-        rank.resize(n, 0);
-
-        for (int i = 0; i < n; ++i)  parent[i] = i; // initailized the parent nodes
-   
-    }
-
-    int find(int x) {
-
-        if (parent[x] != x)
-            parent[x] = find(parent[x]);
-        
-        return parent[x];
-   
-    }
-
-    bool unite(int x, int y) {
-
-        int xr = find(x), yr = find(y);
-
-        if (xr == yr) return false;
-
-        if (rank[xr] < rank[yr]) 
-            swap(xr, yr);
-        
-        parent[yr] = xr;
-        
-        if (rank[xr] == rank[yr]) 
-            rank[xr]++;
-        
-        return true;
-   
-    }
-
-};
-
-// Kruskal's algorithm to find the MST
-vector<Edge> kruskal(int n, vector<Edge>& edges) {
-    
-    sort(edges.begin(), edges.end(), [](Edge& a, Edge& b) {
-        return a.weight < b.weight;
-    });
-
-    DSU dsu(n);
-    vector<Edge> mst;   // find min spanning tree
-
-    for (Edge& edge : edges) {
-        if (dsu.unite(edge.u, edge.v)) {
-            mst.push_back(edge);
-        }
-    }
-
-
-    return mst;
+// Comparator for sorting edges by weight
+bool compareEdges(Edge* e1, Edge* e2) {
+    return e1->weight < e2->weight;
 }
 
-// Game state and traversal logic
-void traverseGame(vector<Edge>& mst, int start, int end, vector<char>& rewards) {
+// Find operation with path compression
+NodeMST* findParent(NodeMST* node) {
+    if (node->parent != node) {
+        node->parent = findParent(node->parent);
+    }
+    return node->parent;
+}
 
-    vector<bool> visited(rewards.size(), false);
+// Union operation
+void unionNodes(NodeMST* node1, NodeMST* node2) {
+    NodeMST* parent1 = findParent(node1);
+    NodeMST* parent2 = findParent(node2);
+    parent1->parent = parent2;
+}
 
-    for (Edge& edge : mst) {
+int playerScore = 0;
 
-        if (!visited[edge.u]) {
+// Helper function to collect rewards
+void collectReward(NodeMST* node) {
+    if (!node->visited) {
+        switch (node->type) {
+        case 'J':
+            playerScore += 50;
+            cout << "Collected a jewel at (" << node->x << ", " << node->y << ")! +50 points" << endl;
+            break;
+        case 'W':
+            playerScore += 30;
+            cout << "Collected a weapon at (" << node->x << ", " << node->y << ")! +30 points" << endl;
+            break;
+        case 'P':
+            playerScore += 70;
+            cout << "Collected a potion at (" << node->x << ", " << node->y << ")! +70 points" << endl;
+            break;
+        }
+        node->visited = true;
+    }
+}
 
-            cout << "Traversing node " << edge.u << endl;
-            visited[edge.u] = true;
+void kruskal(NodeMST gameMap[MAP_SIZE][MAP_SIZE]) {
+    vector<Edge*> edges;
 
-            // Handle rewards or deletions at this node
-            if (rewards[edge.u] == 'J') {
-                cout << "Collected Jewel at " << edge.u << endl;
-            } else if (rewards[edge.u] == '%') {
-                cout << "You stepped on a trap at " << edge.u << "! Restarting..." << endl;
-                return;
+    // Build all valid edges
+    for (int i = 0; i < MAP_SIZE; i++) {
+        for (int j = 0; j < MAP_SIZE; j++) {
+            NodeMST* node = &gameMap[i][j];
+            if (node->type == '#' || node->type == 'H') continue; // Skip obstacles and the start node
+            
+            // Right neighbor
+            if (j < MAP_SIZE - 1) {
+                NodeMST* neighbor = &gameMap[i][j + 1];
+                if (neighbor->type != '#') {
+                    int weight = (node->type == '*' || neighbor->type == '*') ? 0 : 1;
+                    edges.push_back(new Edge(node, neighbor, weight));
+                }
             }
-            // Add other reward or deletion logic here...
+            // Down neighbor
+            if (i < MAP_SIZE - 1) {
+                NodeMST* neighbor = &gameMap[i + 1][j];
+                if (neighbor->type != '#') {
+                    int weight = (node->type == '*' || neighbor->type == '*') ? 0 : 1;
+                    edges.push_back(new Edge(node, neighbor, weight));
+                }
+            }
         }
     }
 
-    cout << "Traversal complete! Reached destination." << endl;
+    // Sort edges by weight
+    sort(edges.begin(), edges.end(), compareEdges);
+
+    // Kruskal's MST
+    cout << "Building Minimum Spanning Tree..." << endl;
+    for (Edge* edge : edges) {
+        NodeMST* start = edge->start;
+        NodeMST* end = edge->end;
+
+        if (findParent(start) != findParent(end)) {
+            unionNodes(start, end);
+            cout << "MST Edge: (" << start->x << ", " << start->y << ") -> ("
+                 << end->x << ", " << end->y << ")" << endl;
+
+            // Collect rewards
+            collectReward(start);
+            collectReward(end);
+        }
+    }
+
+    // Clean up dynamically allocated edges
+    for (Edge* edge : edges) {
+        delete edge;
+    }
+
+    cout << "Player's final score: " << playerScore << endl;
 }
 
 int main() {
-    // Sample graph representation as edges
-    int n = 6; // Number of nodes
-    vector<Edge> edges = {
-        Edge(0, 1, 1), Edge(0, 2, 1), Edge(1, 2, 100),
-        Edge(1, 3, 5), Edge(2, 3, 8), Edge(3, 4, 6),
-        Edge(4, 5, 9), Edge(2, 5, 10), 
+
+    vector<vector<char>> map = {
+        {'H', 'P', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'J', '#', 'C', 'C', 'C', 'C', 'C', '%', 'C', 'C', 'C'},
+        {'C', 'C', '$', 'C', 'C', 'C', '%', 'C', 'C', 'C', 'J', '#', 'W', 'C', 'C', 'C', 'C', 'C', 'C', '#'},
+        {'C', '#', 'C', 'C', 'C', 'C', 'W', 'C', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'C', '#', 'C', 'C', 'C'},
+        {'%', '#', 'P', 'C', 'C', 'C', '#', 'C', 'C', 'J', 'C', 'C', 'C', 'C', 'C', '$', '%', '@', 'C', '&'},
+        {'C', 'C', 'C', 'C', '$', 'C', '#', 'C', 'C', 'C', 'C', '%', 'C', '#', 'C', 'J', 'C', 'C', 'C', 'C'},
+        {'C', 'C', '%', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '#', '#', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
+        {'C', 'C', 'C', '$', '&', 'P', 'J', 'C', 'C', 'C', 'C', 'C', 'C', '#', 'C', '&', '$', '%', 'C', '@'},
+        {'C', 'C', 'C', 'C', '#', 'W', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'C', '&', 'S', 'W', 'C', '%', 'C'},
+        {'C', 'C', '@', 'C', 'C', 'J', 'C', 'W', 'C', 'C', 'W', 'C', '#', 'C', 'C', '#', 'C', '%', 'C', 'C'},
+        {'C', 'J', 'C', 'C', 'C', 'C', 'C', 'P', 'C', '#', '&', '$', 'W', 'C', '%', 'C', 'C', 'C', 'C', 'C'},
+        {'%', 'C', '&', 'C', '#', '#', 'C', 'C', 'C', '%', 'C', 'C', 'C', '#', '#', 'C', 'J', 'C', 'C', '%'},
+        {'C', 'P', 'C', 'C', '$', 'C', '#', 'C', 'C', 'C', 'C', 'C', '%', 'C', '#', 'C', 'C', 'C', '@', 'C'},
+        {'C', 'C', '%', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
+        {'C', '#', '#', 'C', 'C', 'C', 'C', '#', 'C', 'C', 'C', '#', 'C', '#', '@', '#', '%', 'C', '@', 'C'},
+        {'#', 'C', 'C', '@', 'C', 'C', 'C', '#', 'C', 'C', '$', 'C', '@', 'C', 'C', 'P', 'C', '%', 'C', '@'},
+        {'C', '%', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '@', 'C', 'C', 'C'},
+        {'C', 'C', '#', '%', 'C', '@', 'C', '%', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '#'},
+        {'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '@', 'C', 'C', 'C', 'C', 'C', 'C', '@'},
+        {'C', 'C', 'C', 'C', '#', 'C', 'C', 'C', 'C', '@', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
+        {'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '@', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '@', 'C'}
     };
 
-    // Rewards array for nodes
-    vector<char> rewards = {'S', 'J', '%', 'W', 'P', '*'}; // Example rewards for nodes
+    NodeMST gameMap[MAP_SIZE][MAP_SIZE];
 
-    // Apply Kruskal's algorithm
-    vector<Edge> mst = kruskal(n, edges);
-
-    // Display the MST
-    cout << "Edges in the MST:" << endl;
-    for (Edge& edge : mst) {
-        cout << edge.u << " - " << edge.v << " : " << edge.weight << endl;
+    // Populate the game map
+    for (int i = 0; i < MAP_SIZE; i++) {
+        for (int j = 0; j < MAP_SIZE; j++) {
+            gameMap[i][j] = NodeMST(i, j, map[i][j]);
+        }
     }
 
-    // Traverse the game from start to end
-    int start = 0, end = 5;
-    traverseGame(mst, start, end, rewards);
+    kruskal(gameMap);
 
     return 0;
+    
 }

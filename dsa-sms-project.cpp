@@ -117,7 +117,7 @@ private:
         queue<Inventory*> q;
         q.push(root);
         q.push(NULL);
-        int totalScore = 0, jewel = 0, potion = 0, weapon = 0;
+        int totalScore = 0, jewel = 0, potion = 0, weapon = 0, knife = 0;
 
         while (!q.empty()) {
             Inventory* temp = q.front();
@@ -133,6 +133,7 @@ private:
                 if (temp->rewardName == 'P') potion++;
                 if (temp->rewardName == 'J') jewel++;
                 if (temp->rewardName == 'W') weapon++;
+                if (temp->rewardName == 'K') knife++;
 
                 if (temp->left) q.push(temp->left);
                 if (temp->right) q.push(temp->right);
@@ -140,8 +141,8 @@ private:
         }
 
         cout<< "You have collected: " << jewel << " Jewel, " 
-            << potion << " Potion, " << weapon << " Weapon. "
-            << "Total score: " << totalScore << endl;
+        << potion << " Potion, " << weapon << " Weapon, "<< knife << " knifes."<<endl
+        << "Total score: " << totalScore << endl;
 
     }
 
@@ -197,15 +198,19 @@ private:
         return path;
     }
 
+    // functions to handle map objects 
     void handleMapInteraction(int x, int y) {
         switch (matrix[x][y]) {
             case 'J':
+                // cout<<"You have collected Jewel! +50"<<endl;
                 root = buildTree(root, rand() % 201, 'J', 50);
                 break;
             case 'W':
+                // cout<<"You have collected Weapon! +60"<<endl;
                 root = buildTree(root, rand() % 201, 'W', 60);
                 break;
             case 'P':
+                // cout<<"You have collected Potion! +70"<<endl;
                 root = buildTree(root, rand() % 201, 'P', 70);
                 break;
             case '@':
@@ -219,25 +224,15 @@ private:
             case '*':
                 cout << "You found the crystal! Congratulations!" << endl;
                 break;
+            
+            case 'K':
+                // cout<<"You have collected Knife! +30"<<endl;
+                root = buildTree(root, rand() % 201, 'K', 30);
+                break;
 
-            // case '%': // Player dies
-            //     cout << "You stepped on a trap and died! Game restarting..." << endl;
-            //     // restartGame(); // Call the restart function
-            //     break;
         }
     }
 
-    // void restartGame() {
-    //     // Reset the inventory tree
-    //     delete root;
-    //     root = NULL;
-
-    //     // Reset player position or other game variables if needed
-    //     cout << "Game has been reset. Starting from the beginning..." << endl;
-
-    //     // Restart the game 
-    //     runGame();
-    // }
 
 public:
 
@@ -248,24 +243,24 @@ public:
         
         // Sample Matrix Setup
         char gameMap[MAP_ROW][MAP_COL] = {
-                            {'H', 'P', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'J', '#', 'C', 'C', 'C', 'C', 'C', '%', 'C', 'C', 'C'},
-                            {'C', 'C', '$', 'C', 'C', 'C', '%', 'C', 'C', 'C', 'J', '#', 'W', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
+                            {'H', 'P', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'J', '#', 'C', 'C', 'C', 'C', 'C', 'K', 'C', 'C', 'C'},
+                            {'C', 'C', '$', 'C', 'C', 'C', 'K', 'C', 'C', 'C', 'J', '#', 'W', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
                             {'C', '#', 'J', 'C', 'C', 'C', 'W', 'C', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'C', '#', 'C', 'C', 'C'},
-                            {'%', '#', 'P', 'C', 'C', 'C', '#', 'C', 'C', 'J', 'C', 'C', 'C', 'C', 'C', '$', '%', '@', 'C', '&'},
-                            {'C', 'C', 'C', 'C', '$', 'C', '#', 'C', 'C', 'C', 'C', '%', 'C', '#', 'C', 'J', 'C', 'C', 'C', 'C'},
-                            {'C', 'C', '%', '-', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '#', '#', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
-                            {'C', 'C', 'C', '$', '&', 'P', 'J', 'C', 'C', 'C', 'C', 'C', 'C', '#', 'C', '&', '$', '%', 'C', '@'},
-                            {'C', 'C', 'C', 'C', '#', 'W', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'C', '&', 'S', 'W', 'C', '%', 'C'},
-                            {'C', 'C', '@', 'C', 'C', 'J', 'C', 'W', 'C', 'C', 'W', 'C', '#', 'C', 'C', '#', 'C', '%', 'C', 'C'},
-                            {'C', 'J', 'C', 'C', 'C', 'C', 'C', 'P', 'C', '#', '&', '$', 'W', 'C', '%', 'C', 'C', 'C', 'C', 'C'},
-                            {'%', 'C', '&', 'C', '#', '#', 'C', 'C', 'C', '%', 'C', 'C', 'C', '#', '#', 'C', 'J', 'C', 'C', 'C'},
-                            {'C', 'P', 'C', 'C', '$', 'C', '#', 'C', 'C', 'C', 'C', 'C', '%', 'C', '#', 'C', 'C', 'C', '@', 'C'},
-                            {'C', 'C', '%', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
-                            {'C', '#', '#', 'C', 'C', 'C', 'C', '#', 'C', 'C', 'C', '#', 'C', '#', '@', '#', '%', 'C', '@', 'C'},
-                            {'#', 'C', 'C', '@', 'C', 'C', 'C', '#', 'C', 'C', '$', 'C', '@', 'C', 'C', 'P', 'C', '%', 'C', '@'},
-                            {'C', '%', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'W', 'C', 'C'},
-                            {'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '%', 'C', 'W', 'C', 'C', '$', 'C', 'C', 'C', 'C'},
-                            {'C', '#', '*', 'C', 'C', 'W', 'C', '%', 'C', 'C', 'C', '$', 'C', 'C', 'C', 'C', 'C', '@', 'C', 'C'},
+                            {'K', '#', 'P', 'C', 'C', 'C', '#', 'C', 'C', 'J', 'C', 'C', 'C', 'C', 'C', '$', 'K', '@', 'C', '&'},
+                            {'C', 'C', 'C', 'C', '$', 'C', '#', 'C', 'C', 'C', 'C', 'K', 'C', '#', 'C', 'J', 'C', 'C', 'C', 'C'},
+                            {'C', 'C', 'K', '-', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '#', '#', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
+                            {'C', 'C', 'C', '$', '&', 'P', 'J', 'C', 'C', 'C', 'C', 'C', 'C', '#', 'C', '&', '$', 'K', 'C', '@'},
+                            {'C', 'C', 'C', 'C', '#', 'W', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'C', '&', 'S', 'W', 'C', 'K', 'C'},
+                            {'C', 'C', '@', 'C', 'C', 'J', 'C', 'W', 'C', 'C', 'W', 'C', '#', 'C', 'C', '#', 'C', 'K', 'C', 'C'},
+                            {'C', 'J', 'C', 'C', 'C', 'C', 'C', 'P', 'C', '#', '&', '$', 'W', 'C', 'K', 'C', 'C', 'C', 'C', 'C'},
+                            {'K', 'C', '&', 'C', '#', '#', 'C', 'C', 'C', 'K', 'C', 'C', 'C', '#', '#', 'C', 'J', 'C', 'C', 'C'},
+                            {'C', 'P', 'C', 'C', '$', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'K', 'C', '#', 'C', 'C', 'C', '@', 'C'},
+                            {'C', 'C', 'K', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
+                            {'C', '#', '#', 'C', 'C', 'C', 'C', '#', 'C', 'C', 'C', '#', 'C', '#', '@', '#', 'K', 'C', '@', 'C'},
+                            {'#', 'C', 'C', '@', 'C', 'C', 'C', '#', 'C', 'C', '$', 'C', '@', 'C', 'C', 'P', 'C', 'K', 'C', '@'},
+                            {'C', 'K', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'W', 'C', 'C'},
+                            {'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'K', 'C', 'W', 'C', 'C', '$', 'C', 'C', 'C', 'C'},
+                            {'C', '#', '*', 'C', 'C', 'W', 'C', 'K', 'C', 'C', 'C', '$', 'C', 'C', 'C', 'C', 'C', '@', 'C', 'C'},
                             {'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '@', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
                             {'#', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '#', 'C', 'C', 'C', 'C', 'J', 'C', 'C', 'C', 'C', '*'}
             };
