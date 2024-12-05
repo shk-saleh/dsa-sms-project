@@ -9,62 +9,64 @@ const int ROWS = 20;
 const int COLS = 20;
 const int INF = INT_MAX;
 
+
+// prims algo class
 class Prism{
 
 
-public:
+    public:
 
-int weights[ROWS][COLS]; 
-bool visited[ROWS][COLS]; 
+    int weights[ROWS][COLS]; 
+    bool visited[ROWS][COLS]; 
 
-char matrix[ROWS][COLS] = {
-                            {'H', 'P', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'J', '#', 'C', 'C', 'C', 'C', 'C', 'K', 'C', 'C', 'C'},
-                            {'C', 'C', '$', 'C', 'C', 'C', 'K', 'C', 'C', 'C', 'J', '#', 'W', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
-                            {'C', '#', 'J', 'C', 'C', 'C', 'W', 'C', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'C', '#', 'C', 'C', 'C'},
-                            {'K', '#', 'P', 'C', 'C', 'C', '#', 'C', 'C', 'J', 'C', 'C', 'C', 'C', 'C', '$', 'K', '@', 'C', '&'},
-                            {'C', 'C', 'C', 'C', '$', 'C', '#', 'C', 'C', 'C', 'C', 'K', 'C', '#', 'C', 'J', 'C', 'C', 'C', 'C'},
-                            {'C', 'C', 'K', '-', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '#', '#', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
-                            {'C', 'C', 'C', '$', '&', 'P', 'J', 'C', 'C', 'C', 'C', 'C', 'C', '#', 'C', '&', '$', 'K', 'C', '@'},
-                            {'C', 'C', 'C', 'C', '#', 'W', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'C', '&', 'S', 'W', 'C', 'K', 'C'},
-                            {'C', 'C', '@', 'C', 'C', 'J', 'C', 'W', 'C', 'C', 'W', 'C', '#', 'C', 'C', '#', 'C', 'K', 'C', 'C'},
-                            {'C', 'J', 'C', 'C', 'C', 'C', 'C', 'P', 'C', '#', '&', '$', 'W', 'C', 'K', 'C', 'C', 'C', 'C', 'C'},
-                            {'K', 'C', '&', 'C', '#', '#', 'C', 'C', 'C', 'K', 'C', 'C', 'C', '#', '#', 'C', 'J', 'C', 'C', 'C'},
-                            {'C', 'P', 'C', 'C', '$', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'K', 'C', '#', 'C', 'C', 'C', '@', 'C'},
-                            {'C', 'C', 'K', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
-                            {'C', '#', '#', 'C', 'C', 'C', 'C', '#', 'C', 'C', 'C', '#', 'C', '#', '@', '#', 'K', 'C', '@', 'C'},
-                            {'#', 'C', 'C', '@', 'C', 'C', 'C', '#', 'C', 'C', '$', 'C', '@', 'C', 'C', 'P', 'C', 'K', 'C', '@'},
-                            {'C', 'K', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'W', 'C', 'C'},
-                            {'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'K', 'C', 'W', 'C', 'C', '$', 'C', 'C', 'C', 'C'},
-                            {'C', '#', '*', 'C', 'C', 'W', 'C', 'K', 'C', 'C', 'C', '$', 'C', 'C', 'C', 'C', 'C', '@', 'C', 'C'},
-                            {'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '@', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
-                            {'#', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '#', 'C', 'C', 'C', 'C', 'J', 'C', 'C', 'C', 'C', '*'}
-};
+    char matrix[ROWS][COLS] = {
+                                {'H', 'P', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'J', '#', 'C', 'C', 'C', 'C', 'C', 'K', 'C', 'C', 'C'},
+                                {'C', 'C', '$', 'C', 'C', 'C', 'K', 'C', 'C', 'C', 'J', '#', 'W', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
+                                {'C', '#', 'J', 'C', 'C', 'C', 'W', 'C', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'C', '#', 'C', 'C', 'C'},
+                                {'K', '#', 'P', 'C', 'C', 'C', '#', 'C', 'C', 'J', 'C', 'C', 'C', 'C', 'C', '$', 'K', '@', 'C', '&'},
+                                {'C', 'C', 'C', 'C', '$', 'C', '#', 'C', 'C', 'C', 'C', 'K', 'C', '#', 'C', 'J', 'C', 'C', 'C', 'C'},
+                                {'C', 'C', 'K', '-', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '#', '#', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
+                                {'C', 'C', 'C', '$', '&', 'P', 'J', 'C', 'C', 'C', 'C', 'C', 'C', '#', 'C', '&', '$', 'K', 'C', '@'},
+                                {'C', 'C', 'C', 'C', '#', 'W', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'C', '&', 'S', 'W', 'C', 'K', 'C'},
+                                {'C', 'C', '@', 'C', 'C', 'J', 'C', 'W', 'C', 'C', 'W', 'C', '#', 'C', 'C', '#', 'C', 'K', 'C', 'C'},
+                                {'C', 'J', 'C', 'C', 'C', 'C', 'C', 'P', 'C', '#', '&', '$', 'W', 'C', 'K', 'C', 'C', 'C', 'C', 'C'},
+                                {'K', 'C', '&', 'C', '#', '#', 'C', 'C', 'C', 'K', 'C', 'C', 'C', '#', '#', 'C', 'J', 'C', 'C', 'C'},
+                                {'C', 'P', 'C', 'C', '$', 'C', '#', 'C', 'C', 'C', 'C', 'C', 'K', 'C', '#', 'C', 'C', 'C', '@', 'C'},
+                                {'C', 'C', 'K', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
+                                {'C', '#', '#', 'C', 'C', 'C', 'C', '#', 'C', 'C', 'C', '#', 'C', '#', '@', '#', 'K', 'C', '@', 'C'},
+                                {'#', 'C', 'C', '@', 'C', 'C', 'C', '#', 'C', 'C', '$', 'C', '@', 'C', 'C', 'P', 'C', 'K', 'C', '@'},
+                                {'C', 'K', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'W', 'C', 'C'},
+                                {'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'K', 'C', 'W', 'C', 'C', '$', 'C', 'C', 'C', 'C'},
+                                {'C', '#', '*', 'C', 'C', 'W', 'C', 'K', 'C', 'C', 'C', '$', 'C', 'C', 'C', 'C', 'C', '@', 'C', 'C'},
+                                {'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '@', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'},
+                                {'#', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', '#', 'C', 'C', 'C', 'C', 'J', 'C', 'C', 'C', 'C', '*'}
+    };
 
 
 
-// init weight for each node
+    // init weight for each node
 
-void init_weights() {
+    void init_weights() {
 
-    for (int row = 0; row < ROWS; row++) {
-        for (int col = 0; col < COLS; col++) {
-                visited[row][col] = false;
-                if (matrix[row][col] == '@' || matrix[row][col] == '&' || matrix[row][col] == '#' || matrix[row][col] == '%')
-                    weights[row][col] = INF;
-                else if (matrix[row][col] == 'J')
-                    weights[row][col] = 30;
-                else if (matrix[row][col] == 'W')
-                    weights[row][col] = 50;
-                else if (matrix[row][col] == 'P')
-                    weights[row][col] = 70;
-                else
-                    weights[row][col] = 1;
+        for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COLS; col++) {
+                    visited[row][col] = false;
+                    if (matrix[row][col] == '@' || matrix[row][col] == '&' || matrix[row][col] == '#' || matrix[row][col] == '%')
+                        weights[row][col] = INF;
+                    else if (matrix[row][col] == 'J')
+                        weights[row][col] = 30;
+                    else if (matrix[row][col] == 'W')
+                        weights[row][col] = 50;
+                    else if (matrix[row][col] == 'P')
+                        weights[row][col] = 70;
+                    else
+                        weights[row][col] = 1;
+            }
         }
     }
-}
 
-
-pair<int, int> min_weight_node() {
+    // find pair of that cordinated that has lesser weight
+    pair<int, int> min_weight_node() {
 
         int min_weight = INF;
         int min_row = -1, min_col = -1;
@@ -79,8 +81,8 @@ pair<int, int> min_weight_node() {
             }
         }
 
-    return {min_row, min_col};
-}
+        return {min_row, min_col};          // return in the form of pair
+    }
 
 
 // main logic for prism algo
@@ -101,7 +103,7 @@ void prims_algorithm() {
     // started traversing the graph
     for (int i = 0; i < ROWS * COLS; i++) {
         
-        auto [curr_row, curr_col] = min_weight_node();
+        auto [curr_row, curr_col] = min_weight_node();      // return the pair of coordinates
         
         if (curr_row == -1 || curr_col == -1) break;        // if not valid
 
@@ -112,7 +114,7 @@ void prims_algorithm() {
 
             cout << "The minimum weight to reach the end node is " << total_score << endl;
             
-            //printing edges / coordinates
+            //printing edges of MST / coordinates
             for (int row = 0; row < ROWS; row++) {
                 for (int col = 0; col < COLS; col++) {
                     if (parent[row][col] != -1) {
@@ -126,7 +128,7 @@ void prims_algorithm() {
             return;
         }
         
-        //update wieghts and parnt adj nodes
+        //update weights and parent adj nodes
         vector<pair<int, int>> directions = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
             
             for (auto [dr, dc] : directions) {
